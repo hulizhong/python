@@ -20,7 +20,7 @@ class PgClient(object):
             #print('connect pg succeed')
         except Exception,e:
             #traceback.print_exc()
-            print 'PgClient init error, cause: ', e
+            print 'PgClient init error, e-sql: ', e, sql
 
     def __del__(self):
         self.conn.close()
@@ -30,7 +30,7 @@ class PgClient(object):
         try:
             self.cursor.execute(sql)
         except Exception, e:
-            print "execute sql failed cause:", e
+            print "execute sql failed, e-sql: ", e, sql
             raise e
         else:
             if isCommit:
@@ -51,41 +51,51 @@ def fun1(id):
     steps = int(id)
     for i in range(steps):
         cc = PgClient()
-        data = id
-        sql = "update t_transaction set c_data = '" + data + "' where c_id = 2"
+        data = str(i)
+        sql = "update deadlock.t_transaction set c_data = '" + data + "' where c_id = 2"
         cc.exc(sql)
-        sql = "update t_transaction set c_data = '" + data + "' where c_id = 1"
+        sql = "update deadlock.t_transaction set c_data = '" + data + "' where c_id = 1"
         cc.exc(sql)
 
 def fun2(id):
     steps = int(id)
     for i in range(steps):
         cc = PgClient()
-        data = id
-        sql = "update t_transaction set c_data = '" + data + "' where c_id = 3"
+        data = str(i)
+        sql = "update deadlock.t_transaction set c_data = '" + data + "' where c_id = 3"
         cc.exc(sql)
-        sql = "update t_transaction set c_data = '" + data + "' where c_id = 2"
+        sql = "update deadlock.t_transaction set c_data = '" + data + "' where c_id = 2"
         cc.exc(sql)
 
 def fun3(id):
     steps = int(id)
     for i in range(steps):
         cc = PgClient()
-        data = id
-        sql = "update t_transaction set c_data = '" + data + "' where c_id = 4"
+        data = str(i)
+        sql = "update deadlock.t_transaction set c_data = '" + data + "' where c_id = 4"
         cc.exc(sql)
-        sql = "update t_transaction set c_data = '" + data + "' where c_id = 3"
+        sql = "update deadlock.t_transaction set c_data = '" + data + "' where c_id = 3"
         cc.exc(sql)
 
+def funSelect(id):
+    steps = int(id)
+    for i in range(steps):
+        cc = PgClient()
+        sql = "select * from deadlock.t_transaction" 
+        rows = cc.query(sql)
+
 ts = []
-t1 = threading.Thread(target=fun1, args=('10000',))
+tSelect = threading.Thread(target=funSelect, args=('30003',))
+ts.append(tSelect)
+
+t1 = threading.Thread(target=fun1, args=('30001',))
 ts.append(t1)
-t2 = threading.Thread(target=fun2, args=('20000',))
+t2 = threading.Thread(target=fun2, args=('30002',))
 ts.append(t2)
-t3 = threading.Thread(target=fun2, args=('30000',))
+t3 = threading.Thread(target=fun3, args=('30003',))
 ts.append(t3)
 for t in ts:
-    t.setDaemon(True)
+    #t.setDaemon(True)
     t.start()
 t.join()
 
@@ -95,5 +105,11 @@ sql = 'select * from t_transaction'
 rows = cc.query(sql)
 for row in rows:
     print row
+
+CREATE SCHEMA deadlock;
+set search_path = deadlock;
+create table t_transaction (c_id int, c_data varchar(128));
+ALTER table t_transaction rename column t_data to c_data;  --not cloumn
 '''
+
 
