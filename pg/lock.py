@@ -84,6 +84,27 @@ def funSelect(id):
         sql = "select * from deadlock.t_transaction" 
         rows = cc.query(sql)
 
+def funMaxSelect():
+    cc = PgClient()
+    sql = "select MAX(c_id) from deadlock.t_transaction" 
+    rows = cc.query(sql)
+    return rows
+def funCountSelect():
+    cc = PgClient()
+    sql = "select count(c_id) from deadlock.t_transaction" 
+    rows = cc.query(sql)
+    return rows
+def funAllSelect():
+    cc = PgClient()
+    sql = "select * from deadlock.t_transaction" 
+    rows = cc.query(sql)
+    return rows
+def funColumnSelect():
+    cc = PgClient()
+    sql = "select c_id from deadlock.t_transaction" 
+    rows = cc.query(sql)
+    return rows
+
 ts = []
 tSelect = threading.Thread(target=funSelect, args=('30003',))
 ts.append(tSelect)
@@ -94,11 +115,26 @@ t2 = threading.Thread(target=fun2, args=('30002',))
 ts.append(t2)
 t3 = threading.Thread(target=fun3, args=('30003',))
 ts.append(t3)
-for t in ts:
-    #t.setDaemon(True)
-    t.start()
-t.join()
+#for t in ts:
+#    #t.setDaemon(True)
+#    t.start()
+#t.join()
 
+
+res = funMaxSelect()
+print 'max ', res, type(res), len(res)
+if res[0][0] is None:
+    print 'is None'
+if res[0][0] == None:
+    print '== None'
+res = funCountSelect()
+print 'count', res, type(res), len(res)
+if res[0][0] == 0:
+    print '== 0'
+res = funColumnSelect()
+print 'column ', res, type(res), len(res)
+res = funAllSelect()
+print 'all ', res, type(res), len(res)
 
 '''
 sql = 'select * from t_transaction'
