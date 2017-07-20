@@ -28,36 +28,54 @@ while num > 0:
     print num
     num = num - 1
 
-##-----------------------------------------------------------##section 
-### 测试传参方式，list
+print '##-----------------------------------------------------------##section '
+### -----------------------------------------------------------##section 
+### 测试传参方式，可变对象
 print "测试传参方式，list"
 listarg = [1, 2, 3]
 def processListarg(arg):
-    #arg.append("can i change outside-arg ?")
-    arg = ["sadf", "asdfsdf"]
-    return arg
-## 默认是走的引用，亦即python中的=
-#print listarg
-#print processListarg(listarg)
-#print listarg
-## 让它走下浅拷贝呢。。。
-print listarg
-print processListarg(copy.copy(listarg))
-print listarg
+    print '-----before id', id(arg)
+    arg.append(4)
+    print '-----after id', id(arg)
+print 'pre', id(listarg), listarg
+#print processListarg(copy.copy(listarg))
+print processListarg(listarg)
+print 'post', id(listarg), listarg
 
-### 测试传参方式，str
-print "测试传参方式，str"
+### 测试传参方式，不可变对象
+print "\n测试传参方式，str"
 strarg = "1, 2, 3 "
 def processStrarg(arg):
-    print '-----before', id(arg)
-    arg = "can i change outside-arg ?"
-    print '-----after', id(arg)
-    return arg
-## 亦即python中的=，这可没走引用啊？？？？ 什么意思？？ ---还是走了引用，只不过是不可变对象，进行了新对象的构造。 
-print strarg
-print id(strarg)
+    print '-----before id', id(arg)
+    arg += "can i change outside-arg ?"
+    print '-----after id', id(arg), arg
+print 'pre', id(strarg), strarg
 print processStrarg(strarg)
-print strarg
+print 'post', id(strarg), strarg
 
 
+### 测试赋值
+## 不可变对象
+str1 = 'ssss'
+str2 = str1
+print '\n\n= ', id(str1), id(str2)
+# 单看1个赋值有点像写时复制的效果，但其实不是，因为字符串为不可变对象，所以只要有改变就会是一个新对象；
+str1 += 'mmm1'
+print 'change orig ', id(str1), id(str2)
+str2 += 'mmm2'
+print 'change refer ', id(str1), id(str2),   str1, str2
+
+## 可变对象
+lst1 = [1, 2, [2,2]]
+lst2 = lst1
+print '\n= ', id(lst1), id(lst2)
+lst1.append(31)
+print 'change orig ', id(lst1), id(lst2)
+lst2.append(32)
+print 'change refer ', id(lst1), id(lst2), lst1, lst2
+
+lst3 = copy.copy(lst1)
+print id(lst3), id(lst1)
+lst4 = copy.deepcopy(lst1)
+print id(lst4), id(lst1)
 
